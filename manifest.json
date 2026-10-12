@@ -1,9 +1,9 @@
 {
   "id": "move-to-linking-file",
-  "name": "Move to Linking File's Folder",
+  "name": "Move to Linking File",
   "version": "1.0.1",
   "minAppVersion": "0.15.0",
-  "description": "Moves the selected notes to the folder of the linking note, if exactly one backlink exists. Moves can be undone with the plugin 'File Undo' (https://community.obsidian.md/plugins/file-undo ). Adds the command 'Move to the folders of linking (“parent”) files'",
+  "description": "Moves the selected notes to the folder of the linking note, if exactly one backlink exists. Moves can be undone with the plugin 'File Undo'. Adds the command 'Move to the folders of linking (“parent”) files'.",
   "author": "Helge Tobias Kosuch",
   "isDesktopOnly": false
 }
