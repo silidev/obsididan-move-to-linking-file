@@ -1,0 +1,9 @@
+{
+  "id": "move-to-linking-file",
+  "name": "Move to Linking File",
+  "version": "1.0.0",
+  "minAppVersion": "0.15.0",
+  "description": "Moves active note to the folder of the linking note if exactly one backlink exists.",
+  "author": "Antigravity",
+  "isDesktopOnly": false
+}
