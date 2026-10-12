@@ -4,7 +4,7 @@ module.exports = class MoveToLinkingFilePlugin extends Plugin {
     async onload() {
         this.addCommand({
             id: 'move-to-linking-file-folder',
-            name: 'Move to folder of linking file (if single backlink)',
+            name: 'Move to the folders of linking ("parent") files, if single backlink',
             callback: async () => {
                 const files = this.getSelectedOrActiveFiles();
                 if (files.length === 0) {
@@ -94,12 +94,12 @@ module.exports = class MoveToLinkingFilePlugin extends Plugin {
         }
 
         if (linkingFiles.length === 0) {
-            new Notice(`"${file.name}": Not possible, no backlinks found`);
+            new Notice(`"${file.name}" not moved: *NO* backlinks found`);
             return;
         }
 
         if (linkingFiles.length > 1) {
-            new Notice(`"${file.name}": Not possible, multiple backlinks`);
+            new Notice(`"${file.name}" not moved: *MULTIPLE* backlinks`);
             return;
         }
 
@@ -109,7 +109,7 @@ module.exports = class MoveToLinkingFilePlugin extends Plugin {
         const currentParentDir = file.parent ? file.parent.path : '';
 
         if (targetParentDir === currentParentDir) {
-            new Notice(`"${file.name}": Already in the same folder as the linking file.`);
+            new Notice(`"${file.name}" not moved: Already in the same folder as the linking file.`);
             return;
         }
 
@@ -118,7 +118,7 @@ module.exports = class MoveToLinkingFilePlugin extends Plugin {
             : `${targetParentDir}/${file.name}`;
 
         if (this.app.vault.getAbstractFileByPath(newPath)) {
-            new Notice(`"${file.name}": A file with this name already exists in "${targetParentDir}".`);
+            new Notice(`"${file.name}" not moved: A file with this name already exists in "${targetParentDir}".`);
             return;
         }
 
@@ -127,7 +127,7 @@ module.exports = class MoveToLinkingFilePlugin extends Plugin {
             new Notice(`Moved "${file.name}" to "${targetParentDir || 'root'}".`);
         } catch (err) {
             console.error('Failed to move file:', err);
-            new Notice(`"${file.name}": Failed to move – ${err.message}`);
+            new Notice(`"${file.name}": Failed to move. ${err.message}`);
         }
     }
 };
