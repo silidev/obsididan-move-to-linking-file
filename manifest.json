@@ -1,7 +1,7 @@
 {
   "id": "move-to-linking-file",
   "name": "Move to Linking File",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "minAppVersion": "0.15.0",
   "description": "Moves the selected notes to the folder of the linking note, if exactly one backlink exists. Moves can be undone with the plugin 'File Undo'. Adds the command 'Move to the folders of linking (“parent”) files'.",
   "author": "Helge Tobias Kosuch",
