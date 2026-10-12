@@ -33,39 +33,32 @@ module.exports = class MoveToLinkingFilePlugin extends Plugin {
         const selectedFiles = [];
 
         if (view) {
-            // --- Strategy 1: selectedItems Set ---
+            // Strategy 1: selectedItems Set (newer Obsidian internal API)
             if (view.selectedItems instanceof Set && view.selectedItems.size > 0) {
                 for (const item of view.selectedItems) {
-                    // file property may be called .file or .vFile depending on version
                     const f = item.file ?? item.vFile;
                     if (f instanceof TFile) selectedFiles.push(f);
                 }
-                console.log('[MoveToLinkingFile] Strategy 1 found:', selectedFiles.map(f => f.path));
             }
 
-            // --- Strategy 2: fileItems map + DOM is-selected ---
+            // Strategy 2: fileItems map + DOM .is-selected class check
             if (selectedFiles.length === 0 && view.fileItems) {
                 for (const [path, item] of Object.entries(view.fileItems)) {
-                    // title element may be .selfEl or .el
                     const el = item.selfEl ?? item.el;
                     if (el && el.classList.contains('is-selected')) {
                         const f = this.app.vault.getAbstractFileByPath(path);
                         if (f instanceof TFile) selectedFiles.push(f);
                     }
                 }
-                if (selectedFiles.length > 0) {
-                    console.log('[MoveToLinkingFile] Strategy 2 found:', selectedFiles.map(f => f.path));
-                }
             }
         }
 
-        // --- Strategy 3: DOM query ---
+        // Strategy 3: pure DOM query fallback
         if (selectedFiles.length === 0) {
             const navEls = document.querySelectorAll(
                 '.nav-file-title.is-selected[data-path], .nav-file-title.is-selected'
             );
             for (const el of navEls) {
-                // data-path is on the title element in modern Obsidian
                 const path = el.getAttribute('data-path')
                     ?? el.closest('[data-path]')?.getAttribute('data-path');
                 if (path) {
@@ -73,18 +66,12 @@ module.exports = class MoveToLinkingFilePlugin extends Plugin {
                     if (f instanceof TFile) selectedFiles.push(f);
                 }
             }
-            if (selectedFiles.length > 0) {
-                console.log('[MoveToLinkingFile] Strategy 3 found:', selectedFiles.map(f => f.path));
-            }
         }
 
-        // --- Final fallback: active editor file ---
+        // Final fallback: active editor file
         if (selectedFiles.length === 0) {
             const activeFile = this.app.workspace.getActiveFile();
-            if (activeFile) {
-                console.log('[MoveToLinkingFile] Fallback to active file:', activeFile.path);
-                selectedFiles.push(activeFile);
-            }
+            if (activeFile) selectedFiles.push(activeFile);
         }
 
         return selectedFiles;
