@@ -12,9 +12,11 @@ Install it from https://community.obsidian.md/plugins/move-to-linking-file.
 Consider assigning it to a hotkey (I use F3).
 
 ## Changelog
-### 1.0.7
+### 1.0.8
 - Documentation improvements and link fixes.
+- Aligned command name in manifest.
 - Added automated GitHub release script.
+
 
 ### 1.0.5
 - **Error confirmation modal:** When a file cannot be moved because it has multiple backlinks (or other errors occur), an interactive confirmation modal now opens listing the conflicting notes, preventing errors from being missed due to disappearing toast notifications.
