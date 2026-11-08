@@ -82,4 +82,7 @@ Only `TFile` instances are included (folders are excluded).
    - **Bump version:** Increment the `"version"` in `manifest.json`.
    - **Update README Changelog:** Add an entry for the new version in the `## Changelog` section at the bottom of `README.md`.
      - *Note:* `README.md` is meant for end-users. Focus on notable user-facing features, improvements, and bug fixes rather than internal code refactorings or minutiae.
+6. **Release to GitHub:**
+   - Run `node release.js` (or `./release.ps1`). This script validates syntax, tags the release in git, pushes to GitHub, creates the GitHub release with the changelog, and uploads `main.js` and `manifest.json`.
+
 
