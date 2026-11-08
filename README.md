@@ -5,7 +5,7 @@ Moves the active and selected files to the folders of their backlinking files, i
 
 Adds the command 'Move to the folders of linking (“parent”) files'.
 
-Also helpful to organize into folders is my plugin "Move to subfolder": ttps://community.obsidian.md/plugins/move-to-subfolder
+Also helpful to organize into folders is my plugin "Move to subfolder": https://community.obsidian.md/plugins/move-to-subfolder
 
 Publishing here is a pain. Therefore, there might be a updated version only on github.
 ## Installation
