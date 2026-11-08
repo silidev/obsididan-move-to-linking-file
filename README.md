@@ -10,3 +10,9 @@ Also helpful to organize into folders is my plugin "Move to subfolder": ttps://c
 Publishing here is a pain. Therefore, there might be a updated version only on github.
 ## Installation
 Maybe add a hotkey for the command. I use F3.
+
+## Changelog
+
+### 1.0.5
+- **Error confirmation modal:** When a file cannot be moved because it has multiple backlinks (or other errors occur), an interactive confirmation modal now opens listing the conflicting notes, preventing errors from being missed due to disappearing toast notifications.
+- **Batch move error summary:** When multiple files are selected, errors are collected and summarized in a single modal at the end instead of multiple toasts.

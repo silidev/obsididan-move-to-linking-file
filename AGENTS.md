@@ -19,12 +19,12 @@ The plugin registers one Obsidian command:
 
 1. Determine the set of files to process (see *Multi-Selection* below).
 2. For each file, inspect `app.metadataCache.resolvedLinks` to find all notes that contain a wiki-link (`[[...]]`) pointing to this file.
-3. **0 backlinks** → Notice: `"<name>": Not possible, no backlinks found`
-4. **> 1 backlinks** → Notice: `"<name>": Not possible, multiple backlinks`
+3. **0 backlinks** → Notice (or listed in error modal if multi-select): `*NO* backlinks found`
+4. **> 1 backlinks** → Displays `MoveErrorModal` with all conflicting linking files listed (clickable). If multi-selection, errors are collected and displayed in a single modal at the end.
 5. **Exactly 1 backlink** →
    - Determine the parent folder of the linking file.
    - If the file is already in that folder → Notice: already there.
-   - If a file with the same name already exists at the target → Notice: name conflict.
+   - If a file with the same name already exists at the target → Notice / error modal: name conflict.
    - Otherwise: move using `app.fileManager.renameFile(file, newPath)`.
      This API call automatically updates all internal wiki-links vault-wide.
    - Notice: `Moved "<name>" to "<folder>".`
@@ -58,6 +58,7 @@ Only `TFile` instances are included (folders are excluded).
 | `app.workspace.getLeavesOfType('file-explorer')` | Gets the file explorer panel. `[0].view` gives the `FileExplorerView`. |
 | `app.workspace.getActiveFile()` | Returns the currently open file in the editor. |
 | `new Notice(message)` | Displays a toast notification to the user. |
+| `Modal` | Displays a dialog window that requires user confirmation. |
 
 ---
 
@@ -77,3 +78,8 @@ Only `TFile` instances are included (folders are excluded).
 2. Validate syntax: `node --check main.js`
 3. In Obsidian: `Ctrl+P` → *Reload app without saving* (or disable/re-enable the plugin in Settings → Community Plugins).
 4. Open the developer console (`Ctrl+Shift+I`) to inspect any errors.
+5. **Versioning & Changelog (MANDATORY on every change):**
+   - **Bump version:** Increment the `"version"` in `manifest.json`.
+   - **Update README Changelog:** Add an entry for the new version in the `## Changelog` section at the bottom of `README.md`.
+     - *Note:* `README.md` is meant for end-users. Focus on notable user-facing features, improvements, and bug fixes rather than internal code refactorings or minutiae.
+

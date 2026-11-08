@@ -1,4 +1,81 @@
-const { Plugin, Notice, TFile } = require('obsidian');
+const { Plugin, Notice, TFile, Modal } = require('obsidian');
+
+class MoveErrorModal extends Modal {
+    constructor(app, errors) {
+        super(app);
+        this.errors = errors;
+    }
+
+    onOpen() {
+        const { contentEl } = this;
+        contentEl.empty();
+
+        if (typeof this.setTitle === 'function') {
+            this.setTitle('Move to Linking File: Errors');
+        } else if (this.titleEl) {
+            this.titleEl.setText('Move to Linking File: Errors');
+        }
+
+        const isSingle = this.errors.length === 1;
+        contentEl.createEl('p', {
+            text: isSingle
+                ? 'The following file could not be moved:'
+                : 'The following files could not be moved:'
+        });
+
+        const listContainer = contentEl.createDiv({ cls: 'move-to-linking-file-error-container' });
+        listContainer.style.maxHeight = '50vh';
+        listContainer.style.overflowY = 'auto';
+        listContainer.style.marginBottom = '1.5em';
+
+        const listEl = listContainer.createEl('ul', { cls: 'move-to-linking-file-error-list' });
+        listEl.style.margin = '0';
+        listEl.style.paddingLeft = '1.5em';
+
+        for (const item of this.errors) {
+            const li = listEl.createEl('li');
+            li.style.marginBottom = '0.75em';
+
+            li.createEl('strong', { text: item.file.name });
+            li.createSpan({ text: `: ${item.reason}` });
+
+            if (item.links && item.links.length > 0) {
+                const subList = li.createEl('ul');
+                subList.style.marginTop = '0.35em';
+                subList.style.marginBottom = '0.35em';
+                subList.style.paddingLeft = '1.5em';
+
+                for (const linkingFile of item.links) {
+                    const subLi = subList.createEl('li');
+                    const linkEl = subLi.createEl('a', {
+                        text: linkingFile.path,
+                        cls: 'internal-link'
+                    });
+                    linkEl.style.cursor = 'pointer';
+                    linkEl.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.app.workspace.openLinkText(linkingFile.path, '', false);
+                    });
+                }
+            }
+        }
+
+        const buttonContainer = contentEl.createDiv({ cls: 'modal-button-container' });
+        const okButton = buttonContainer.createEl('button', {
+            text: 'OK',
+            cls: 'mod-cta'
+        });
+        okButton.addEventListener('click', () => {
+            this.close();
+        });
+        okButton.focus();
+    }
+
+    onClose() {
+        const { contentEl } = this;
+        contentEl.empty();
+    }
+}
 
 module.exports = class MoveToLinkingFilePlugin extends Plugin {
     async onload() {
@@ -11,8 +88,16 @@ module.exports = class MoveToLinkingFilePlugin extends Plugin {
                     new Notice('No file selected or active.');
                     return;
                 }
+
+                const errors = [];
+                const isMultiSelect = files.length > 1;
+
                 for (const file of files) {
-                    await this.handleMove(file);
+                    await this.handleMove(file, errors, isMultiSelect);
+                }
+
+                if (errors.length > 0) {
+                    new MoveErrorModal(this.app, errors).open();
                 }
             }
         });
@@ -77,7 +162,7 @@ module.exports = class MoveToLinkingFilePlugin extends Plugin {
         return selectedFiles;
     }
 
-    async handleMove(file) {
+    async handleMove(file, errors, isMultiSelect) {
         const resolvedLinks = this.app.metadataCache.resolvedLinks;
         const targetPath = file.path;
 
@@ -94,12 +179,21 @@ module.exports = class MoveToLinkingFilePlugin extends Plugin {
         }
 
         if (linkingFiles.length === 0) {
-            new Notice(`"${file.name}" not moved: *NO* backlinks found`);
+            const reason = '*NO* backlinks found';
+            if (isMultiSelect) {
+                errors.push({ file, reason });
+            } else {
+                new Notice(`"${file.name}" not moved: ${reason}`);
+            }
             return;
         }
 
         if (linkingFiles.length > 1) {
-            new Notice(`"${file.name}" not moved: *MULTIPLE* backlinks`);
+            errors.push({
+                file,
+                reason: `*MULTIPLE* backlinks found (${linkingFiles.length})`,
+                links: linkingFiles
+            });
             return;
         }
 
@@ -109,7 +203,9 @@ module.exports = class MoveToLinkingFilePlugin extends Plugin {
         const currentParentDir = file.parent ? file.parent.path : '';
 
         if (targetParentDir === currentParentDir) {
-            new Notice(`"${file.name}" not moved: Already in the same folder as the linking file.`);
+            if (!isMultiSelect) {
+                new Notice(`"${file.name}" not moved: Already in the same folder as the linking file.`);
+            }
             return;
         }
 
@@ -118,7 +214,12 @@ module.exports = class MoveToLinkingFilePlugin extends Plugin {
             : `${targetParentDir}/${file.name}`;
 
         if (this.app.vault.getAbstractFileByPath(newPath)) {
-            new Notice(`"${file.name}" not moved: A file with this name already exists in "${targetParentDir}".`);
+            const reason = `A file with this name already exists in "${targetParentDir || 'root'}".`;
+            if (isMultiSelect) {
+                errors.push({ file, reason });
+            } else {
+                new Notice(`"${file.name}" not moved: ${reason}`);
+            }
             return;
         }
 
@@ -127,7 +228,12 @@ module.exports = class MoveToLinkingFilePlugin extends Plugin {
             new Notice(`Moved "${file.name}" to "${targetParentDir || 'root'}".`);
         } catch (err) {
             console.error('Failed to move file:', err);
-            new Notice(`"${file.name}": Failed to move. ${err.message}`);
+            const reason = `Failed to move. ${err.message}`;
+            if (isMultiSelect) {
+                errors.push({ file, reason });
+            } else {
+                new Notice(`"${file.name}": ${reason}`);
+            }
         }
     }
 };
